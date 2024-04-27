@@ -4,10 +4,6 @@ all:
 coop:
 	g++ -std=c++17 -O2 src/coop.cpp src/indextopair.cpp src/environment.cpp src/boxpicker.cpp src/updatetargets.cpp  src/simulatecoop.cpp src/coopalgorithm.cpp -o coop
 
-test:
-	g++ -std=c++17 src/coop-astar.cpp src/testing/coop.cpp -o cooptest
-
 clean:
 	rm -f rollout
 	rm -f coop
-	rm -f cooptest 
