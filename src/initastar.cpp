@@ -1,7 +1,7 @@
-#include "BasePolicy.hpp"
-#include "IndexToPair.hpp"
-#include "InitAstar.hpp"
-#include "Astar.hpp"
+#include "basepolicy.hpp"
+#include "indextopair.hpp"
+#include "initastar.hpp"
+#include "astar.hpp"
 
 
 void reservePath(char* paths, float* obstacles, int height, int width, int startIdx, int goalIdx, int numOfTargets, int targetIdx){

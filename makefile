@@ -1,13 +1,13 @@
 all:
-	g++ -std=c++17 -O2 src/Rollout.cpp src/IndexToPair.cpp src/Environment.cpp src/BasePolicy.cpp src/CostsToControl.cpp src/BoxPicker.cpp src/UpdateTargets.cpp src/UpdateBasePolicy.cpp src/ControlPicker.cpp src/Simulate.cpp src/Astar.cpp src/InitAstar.cpp -o rollout
+	g++ -std=c++17 -O2 src/rollout.cpp src/indextopair.cpp src/environment.cpp src/basepolicy.cpp src/coststocontrol.cpp src/boxpicker.cpp src/updatetargets.cpp src/updatebasepolicy.cpp src/controlpicker.cpp src/simulate.cpp src/astar.cpp src/initastar.cpp -o rollout
 
 coop:
-	g++ -std=c++17 -O2 src/Coop.cpp src/IndexToPair.cpp src/Environment.cpp src/BoxPicker.cpp src/UpdateTargets.cpp  src/SimulateCoop.cpp src/CoopAlgorithm.cpp -o coop
+	g++ -std=c++17 -O2 src/coop.cpp src/indextopair.cpp src/environment.cpp src/boxpicker.cpp src/updatetargets.cpp  src/simulatecoop.cpp src/coopalgorithm.cpp -o coop
 
 test:
-	g++ -std=c++17 src/coop-astar.cpp src/testing/coop.cpp -o coopTest
+	g++ -std=c++17 src/coop-astar.cpp src/testing/coop.cpp -o cooptest
 
 clean:
 	rm -f rollout
 	rm -f coop
-	rm -f coopTest 
+	rm -f cooptest 

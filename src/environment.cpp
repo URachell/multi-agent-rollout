@@ -1,4 +1,4 @@
-#include "Environment.hpp"
+#include "environment.hpp"
 #include <iostream>
 
 // Objects in matrix

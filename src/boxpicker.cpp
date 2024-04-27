@@ -1,4 +1,4 @@
-#include "BoxPicker.hpp"
+#include "boxpicker.hpp"
 #include <random>
 
 void boxPicker(Environment &env, std::vector< std::pair<int,int> > &targets, int agentIdx){

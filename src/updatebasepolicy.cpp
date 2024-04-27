@@ -1,5 +1,5 @@
-#include "UpdateBasePolicy.hpp"
-#include "BasePolicy.hpp"
+#include "updatebasepolicy.hpp"
+#include "basepolicy.hpp"
 
 void updateBasePolicy(Environment &env, std::vector<std::pair<int, int>> &targets, std::vector<bool> &hasUpdatedTarget, std::vector<std::vector<int>> &basePolicies, char* paths,  std::unordered_map<int,int> &posToTargetIdx){
     int numOfAgents = env.getNumOfAgents();

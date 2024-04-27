@@ -1,5 +1,5 @@
 #pragma once
-#include "Environment.hpp"
+#include "environment.hpp"
 #include <vector>
 
 void reservePath(char* paths, float* obstacles, int height, int width, int startIdx, int goalIdx, int numOfTargets, int targetIdx);

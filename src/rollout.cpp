@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdexcept>
-#include "Simulate.hpp"
+#include "simulate.hpp"
 
 /*
 

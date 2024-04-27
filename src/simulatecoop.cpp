@@ -1,11 +1,11 @@
-#include "Simulate.hpp"
-#include "Environment.hpp"
-#include "BoxPicker.hpp"
-#include "ControlPicker.hpp"
-#include "UpdateTargets.hpp"
+#include "simulate.hpp"
+#include "environment.hpp"
+#include "boxpicker.hpp"
+#include "controlpicker.hpp"
+#include "updatetargets.hpp"
 #include <random>
 #include <math.h>   
-#include "CoopAlgorithm.hpp"
+#include "coopalgorithm.hpp"
 #include<thread>
 
 bool simulateCoop(int numOfAgents, bool displayEnvironment, int msSleepDuration){

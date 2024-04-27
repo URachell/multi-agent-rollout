@@ -1,9 +1,9 @@
-#include "Simulate.hpp"
-#include "Environment.hpp"
-#include "BoxPicker.hpp"
-#include "ControlPicker.hpp"
-#include "UpdateTargets.hpp"
-#include "InitAstar.hpp"
+#include "simulate.hpp"
+#include "environment.hpp"
+#include "boxpicker.hpp"
+#include "controlpicker.hpp"
+#include "updatetargets.hpp"
+#include "initastar.hpp"
 #include <random>
 #include <math.h>   
 #include <unordered_map>
