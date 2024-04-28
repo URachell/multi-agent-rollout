@@ -3,6 +3,7 @@
 #include <cstdint>
 #include "assert.h"
 #include <algorithm>
+#include <array>
 
 #define ENV_HEIGHT 47
 #define ENV_WIDTH 115
