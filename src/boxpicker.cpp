@@ -2,11 +2,9 @@
 #include <random>
 
 void boxPicker(Environment &env, std::vector< std::pair<int,int> > &targets, int agentIdx){
-    int height = env.getHeight();
-    int width = env.getWidth();
-    int* matrix = env.getMatPtr();
-
-
+    int height = ENV_HEIGHT;
+    int width = ENV_WIDTH;
+    std::array<int, ENV_CAPACITY>& matrix = env.getMatrixArray();
 
     std::vector<std::pair<int,int>> &availableBoxes = env.getAvailableBoxes();
     if(targets.empty()){ // Initialization of targets

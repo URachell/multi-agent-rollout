@@ -19,16 +19,16 @@ bool simulate(int numOfAgents, bool displayEnvironment, int msSleepDuration){
 
     Environment env(wallOffset, boxOffset, n, numOfAgents);
 
-    int height = env.getHeight();
-    int width = env.getWidth();
-    int* matrix = env.getMatPtr();
+    int height = ENV_HEIGHT;
+    int width = ENV_WIDTH;
+    std::array<int, ENV_CAPACITY>& matrix = env.getMatrixArray();
 
     std::unordered_map<int, int> posToTargetIdx;
 
     std::vector<std::pair<int, int>> boxPositions;
     for(size_t i = 0; i < height * width; ++i){
         if(matrix[i] == 2){
-            boxPositions.push_back(indexToPair(i, env.getWidth()));
+            boxPositions.push_back(indexToPair(i, ENV_WIDTH));
             posToTargetIdx[i] = boxPositions.size() - 1;
         }
     }
@@ -36,7 +36,7 @@ bool simulate(int numOfAgents, bool displayEnvironment, int msSleepDuration){
     boxPicker(env, targets, -1); // Initialize targets
 
     std::vector<std::pair<int, int>> dropOffPoints;
-    for(int i = 4; i < env.getHeight() - 4; ++i){
+    for(int i = 4; i < ENV_HEIGHT - 4; ++i){
         std::pair<int, int> dropOff1 = {i, 1};
         std::pair<int, int> dropOff2 = {i, width - 2};
         dropOffPoints.push_back(dropOff1);
@@ -45,7 +45,7 @@ bool simulate(int numOfAgents, bool displayEnvironment, int msSleepDuration){
         posToTargetIdx[dropOff2.second + dropOff2.first * width] = boxPositions.size() + dropOffPoints.size() - 1;
     }
 
-    int pathsSize = env.getWidth() * env.getHeight() * (env.getBoxesLeft() * dropOffPoints.size());
+    int pathsSize = ENV_WIDTH * ENV_HEIGHT * (env.getBoxesLeft() * dropOffPoints.size());
     char* paths = new char[pathsSize];
     for(int i = 0; i < pathsSize; i++)
         paths[i] = -1;
@@ -63,6 +63,7 @@ bool simulate(int numOfAgents, bool displayEnvironment, int msSleepDuration){
 
     int iteration = 0;
     while(!env.isDone()){
+        
         auto controls = controlPicker(env, targets, dropOffPoints, agentOrder, false, paths, posToTargetIdx);
 
         auto beforeValues = env.getAgentValues();

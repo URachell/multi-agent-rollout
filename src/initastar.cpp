@@ -44,9 +44,9 @@ void reservePath(char* paths, float* obstacles, int height, int width, int start
 }
 
 void initAstar(char* paths, Environment &env, std::vector<std::pair<int, int>> boxes, std::vector<std::pair<int, int>> dropOffPoints){
-    int height = env.getHeight();
-    int width = env.getWidth();
-    int* matrix = env.getMatPtr();
+    int height = ENV_HEIGHT;
+    int width = ENV_WIDTH;
+    std::array<int, ENV_CAPACITY>& matrix = env.getMatrixArray();
 
     float* obstacles = new float[height * width](); // Consider removing outer wall
 

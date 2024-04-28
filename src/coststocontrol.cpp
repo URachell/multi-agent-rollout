@@ -23,7 +23,7 @@ int costsToControl(std::vector<double> &costs, int agentIdx, std::vector<std::pa
         }
 
         int agentMatrixIndex = env.getMatrixIndex(agentIdx);
-        auto agentPos = indexToPair(agentMatrixIndex, env.getWidth());
+        auto agentPos = indexToPair(agentMatrixIndex, ENV_WIDTH);
 
         std::vector<int> distances;
 

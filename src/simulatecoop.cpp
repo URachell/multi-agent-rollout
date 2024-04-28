@@ -14,12 +14,14 @@ bool simulateCoop(int numOfAgents, bool displayEnvironment, int msSleepDuration)
     int n = (int)ceil(sqrt((double)numOfAgents) / 2.0);
 
     Environment env(wallOffset, boxOffset, n, numOfAgents);
+    int height = ENV_HEIGHT;
+    int width = ENV_WIDTH;
 
     std::vector<std::pair<int, int>> dropOffPoints;
-    for(int i = 3; i < env.getHeight() - 2; ++i){
+    for(int i = 3; i < height - 2; ++i){
         if((i - 2) % 3 != 0){
             std::pair<int, int> dropOff1 = {i, 1};
-            std::pair<int, int> dropOff2 = {i, env.getWidth() - 2};
+            std::pair<int, int> dropOff2 = {i, width - 2};
             dropOffPoints.push_back(dropOff1);
             dropOffPoints.push_back(dropOff2);
         }
@@ -30,11 +32,7 @@ bool simulateCoop(int numOfAgents, bool displayEnvironment, int msSleepDuration)
 
     double cost = 0.0;
 
-    // Calculate controls
-    int height = env.getHeight();
-    int width = env.getWidth();
-    int* matPtr = env.getMatPtr();
-    
+    // Calculate controls    
     std::vector<Node> obstacles;
     std::vector<Node> initial_positions;
 	std::vector<Node> target_positions;
