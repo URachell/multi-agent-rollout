@@ -228,12 +228,17 @@ class WarehouseEnvironment:
         if position in self.charging_stations:
             return position
         blocked = self.get_blocked_cells()
-        best_station = min(
-            self.charging_stations,
-            key=lambda charger: path_length(position, charger, blocked, self.height, self.width)
-            if path_length(position, charger, blocked, self.height, self.width) is not None
-            else 10**9,
-        )
+        best_station: Position | None = None
+        best_distance: int | None = None
+        for charger in self.charging_stations:
+            distance = path_length(position, charger, blocked, self.height, self.width)
+            if distance is None:
+                continue
+            if best_distance is None or distance < best_distance:
+                best_station = charger
+                best_distance = distance
+        if best_station is None:
+            raise ValueError("No reachable charging station found")
         return best_station
 
     def battery_feasible_actions(self, agent_idx: int, preferred_target: Position | None) -> List[int]:
@@ -251,11 +256,11 @@ class WarehouseEnvironment:
             if nearest_charge is None:
                 continue
             post_move_battery = agent.battery - discharge
-            if self._is_charging_station(nxt):
+            charging_after_move = self._is_charging_station(nxt)
+            if charging_after_move:
                 post_move_battery = min(agent.max_battery, post_move_battery + self.charge_rate)
-            if post_move_battery < nearest_charge + self.charge_safety_margin:
-                if not self._is_charging_station(nxt):
-                    continue
+            if post_move_battery < nearest_charge + self.charge_safety_margin and not charging_after_move:
+                continue
             feasible.append(int(action))
         return feasible or [0]
 

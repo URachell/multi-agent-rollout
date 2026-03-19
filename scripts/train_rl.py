@@ -153,6 +153,12 @@ def joint_action_mask_tensor(env: MultiAgentRolloutEnv) -> torch.Tensor:
     return mask
 
 
+def masked_max_q_values(q_values: torch.Tensor, joint_action_mask: torch.Tensor) -> torch.Tensor:
+    masked_q_values = q_values.masked_fill(~joint_action_mask, -1e9)
+    next_q = masked_q_values.max(dim=1).values
+    return torch.where(joint_action_mask.any(dim=1), next_q, torch.zeros_like(next_q))
+
+
 def rollout_baseline_actions(env: MultiAgentRolloutEnv) -> Sequence[int]:
     return env.policy.choose_actions(env.env, env.targets)
 
@@ -390,9 +396,8 @@ def train_dqn(config: argparse.Namespace, output_dir: Path) -> Path:
                 batch_obs, batch_action, batch_reward, batch_next_obs, batch_done, batch_next_joint_mask = replay_buffer.sample(config.batch_size)
                 current_q = q_network(batch_obs).gather(1, batch_action.unsqueeze(1)).squeeze(1)
                 with torch.no_grad():
-                    next_q_values = target_network(batch_next_obs).masked_fill(~batch_next_joint_mask, -1e9)
-                    next_q = next_q_values.max(dim=1).values
-                    next_q = torch.where(batch_next_joint_mask.any(dim=1), next_q, torch.zeros_like(next_q))
+                    next_q_values = target_network(batch_next_obs)
+                    next_q = masked_max_q_values(next_q_values, batch_next_joint_mask)
                     target_q = batch_reward + config.gamma * next_q * (1.0 - batch_done)
                 loss = torch.nn.functional.mse_loss(current_q, target_q)
                 optimizer.zero_grad()

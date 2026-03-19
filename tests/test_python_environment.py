@@ -3,6 +3,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
+try:
+    import torch
+except ModuleNotFoundError:  # pragma: no cover - environment specific
+    torch = None
+
 from python import (
     Action,
     BatteryAwareRolloutPolicy,
@@ -66,6 +71,22 @@ class WarehouseEnvironmentTest(unittest.TestCase):
         feasible = env.battery_feasible_actions(0, (10, 10))
         self.assertNotIn(Action.STAY, feasible)
         self.assertIn(Action.LEFT, feasible)
+
+    def test_battery_feasible_actions_allow_waiting_on_charger(self):
+        env = WarehouseEnvironment(
+            agent_count=1,
+            battery_capacity=10,
+            move_discharge=1,
+            idle_discharge=0,
+            charge_rate=2,
+            low_battery_threshold=10,
+            charge_safety_margin=3,
+        )
+        env.agent_states[0].position = (2, 2)
+        env.agent_states[0].battery = 1
+        feasible = env.battery_feasible_actions(0, (10, 10))
+        self.assertIn(Action.STAY, feasible)
+        self.assertEqual(env.nearest_charging_station(env.agent_states[0].position), (2, 2))
 
     def test_rollout_policy_redirects_low_battery_agent_to_charger(self):
         env = WarehouseEnvironment(agent_count=1, battery_capacity=20, move_discharge=1, charge_rate=5, low_battery_threshold=6)
@@ -168,6 +189,17 @@ class WarehouseEnvironmentTest(unittest.TestCase):
                 text=True,
             )
             self.assertIn("scripts/train_rl.py --config configs/ppo_smoke.json", completed.stdout)
+
+    @unittest.skipIf(torch is None, "PyTorch is not installed")
+    def test_masked_max_q_values_respects_feasible_joint_actions(self):
+        from scripts.train_rl import masked_max_q_values
+
+        q_values = torch.tensor([[1.0, 100.0, 3.0], [5.0, 4.0, 3.0]])
+        joint_action_mask = torch.tensor([[True, False, True], [False, False, False]])
+
+        next_q = masked_max_q_values(q_values, joint_action_mask)
+
+        self.assertTrue(torch.equal(next_q, torch.tensor([3.0, 0.0])))
 
 
 if __name__ == "__main__":
