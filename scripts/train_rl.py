@@ -75,7 +75,7 @@ class QNetwork(nn.Module):
 
 class ReplayBuffer:
     def __init__(self, capacity: int) -> None:
-        self.buffer: Deque[Tuple[torch.Tensor, torch.Tensor, float, torch.Tensor, float]] = deque(maxlen=capacity)
+        self.buffer: Deque[Tuple[torch.Tensor, torch.Tensor, float, torch.Tensor, float, torch.Tensor]] = deque(maxlen=capacity)
 
     def push(
         self,
@@ -84,18 +84,20 @@ class ReplayBuffer:
         reward: float,
         next_observation: torch.Tensor,
         done: float,
+        next_joint_action_mask: torch.Tensor,
     ) -> None:
-        self.buffer.append((observation, action, reward, next_observation, done))
+        self.buffer.append((observation, action, reward, next_observation, done, next_joint_action_mask))
 
     def sample(self, batch_size: int):
         batch = random.sample(self.buffer, batch_size)
-        obs, action, reward, next_obs, done = zip(*batch)
+        obs, action, reward, next_obs, done, next_joint_mask = zip(*batch)
         return (
             torch.stack(list(obs)),
             torch.stack(list(action)),
             torch.tensor(reward, dtype=torch.float32),
             torch.stack(list(next_obs)),
             torch.tensor(done, dtype=torch.float32),
+            torch.stack(list(next_joint_mask)),
         )
 
     def __len__(self) -> int:
@@ -131,6 +133,24 @@ def expand_joint_action(encoded: int, num_agents: int, action_dim: int) -> List[
         actions[idx] = encoded % action_dim
         encoded //= action_dim
     return actions
+
+
+def valid_joint_action_indices(env: MultiAgentRolloutEnv) -> List[int]:
+    feasible_actions = env.sample_action_mask()
+    joint_action_dim = env.action_dim_per_agent ** env.num_agents
+    valid_actions = []
+    for encoded in range(joint_action_dim):
+        joint_action = expand_joint_action(encoded, env.num_agents, env.action_dim_per_agent)
+        if all(joint_action[idx] in feasible_actions[idx] for idx in range(env.num_agents)):
+            valid_actions.append(encoded)
+    return valid_actions or [0]
+
+
+def joint_action_mask_tensor(env: MultiAgentRolloutEnv) -> torch.Tensor:
+    joint_action_dim = env.action_dim_per_agent ** env.num_agents
+    mask = torch.zeros(joint_action_dim, dtype=torch.bool)
+    mask[valid_joint_action_indices(env)] = True
+    return mask
 
 
 def rollout_baseline_actions(env: MultiAgentRolloutEnv) -> Sequence[int]:
@@ -348,14 +368,7 @@ def train_dqn(config: argparse.Namespace, output_dir: Path) -> Path:
         env.reset()
         for step in range(config.max_steps):
             obs = observation_tensor(env)
-            feasible_actions = env.sample_action_mask()
-            all_joint_actions = []
-            for encoded in range(joint_action_dim):
-                joint_action = expand_joint_action(encoded, env.num_agents, env.action_dim_per_agent)
-                if all(joint_action[idx] in feasible_actions[idx] for idx in range(env.num_agents)):
-                    all_joint_actions.append(encoded)
-            if not all_joint_actions:
-                all_joint_actions = [0]
+            all_joint_actions = valid_joint_action_indices(env)
 
             if random.random() < epsilon:
                 encoded_action = random.choice(all_joint_actions)
@@ -370,13 +383,16 @@ def train_dqn(config: argparse.Namespace, output_dir: Path) -> Path:
             actions = expand_joint_action(encoded_action, env.num_agents, env.action_dim_per_agent)
             next_observation, reward, done, _ = env.step(actions)
             next_obs = torch.tensor(env.flatten_observation(next_observation), dtype=torch.float32)
-            replay_buffer.push(obs, torch.tensor(encoded_action, dtype=torch.long), reward, next_obs, float(done))
+            next_joint_mask = joint_action_mask_tensor(env)
+            replay_buffer.push(obs, torch.tensor(encoded_action, dtype=torch.long), reward, next_obs, float(done), next_joint_mask)
 
             if len(replay_buffer) >= config.batch_size:
-                batch_obs, batch_action, batch_reward, batch_next_obs, batch_done = replay_buffer.sample(config.batch_size)
+                batch_obs, batch_action, batch_reward, batch_next_obs, batch_done, batch_next_joint_mask = replay_buffer.sample(config.batch_size)
                 current_q = q_network(batch_obs).gather(1, batch_action.unsqueeze(1)).squeeze(1)
                 with torch.no_grad():
-                    next_q = target_network(batch_next_obs).max(dim=1).values
+                    next_q_values = target_network(batch_next_obs).masked_fill(~batch_next_joint_mask, -1e9)
+                    next_q = next_q_values.max(dim=1).values
+                    next_q = torch.where(batch_next_joint_mask.any(dim=1), next_q, torch.zeros_like(next_q))
                     target_q = batch_reward + config.gamma * next_q * (1.0 - batch_done)
                 loss = torch.nn.functional.mse_loss(current_q, target_q)
                 optimizer.zero_grad()

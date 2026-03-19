@@ -41,15 +41,36 @@ class WarehouseEnvironmentTest(unittest.TestCase):
     def test_battery_feasible_actions_prioritize_reaching_charger(self):
         env = WarehouseEnvironment(agent_count=1, battery_capacity=6, move_discharge=2, charge_rate=4, low_battery_threshold=6)
         env.agent_states[0].position = (2, 4)
-        env.agent_states[0].battery = 2
+        env.agent_states[0].battery = 6
         feasible = env.battery_feasible_actions(0, (10, 10))
         self.assertIn(Action.LEFT, feasible)
         self.assertNotIn(Action.RIGHT, feasible)
 
-    def test_rollout_policy_redirects_low_battery_agent_to_charger(self):
-        env = WarehouseEnvironment(agent_count=1, battery_capacity=20, move_discharge=1, charge_rate=5, low_battery_threshold=5)
+    def test_nearest_charger_returns_current_station(self):
+        env = WarehouseEnvironment(agent_count=1)
+        charger = (2, 2)
+        self.assertEqual(env.nearest_charging_station(charger), charger)
+
+    def test_battery_feasible_actions_do_not_assume_free_recharge_off_station(self):
+        env = WarehouseEnvironment(
+            agent_count=1,
+            battery_capacity=10,
+            move_discharge=1,
+            idle_discharge=1,
+            charge_rate=1,
+            low_battery_threshold=10,
+            charge_safety_margin=3,
+        )
         env.agent_states[0].position = (2, 4)
-        env.agent_states[0].battery = 2
+        env.agent_states[0].battery = 5
+        feasible = env.battery_feasible_actions(0, (10, 10))
+        self.assertNotIn(Action.STAY, feasible)
+        self.assertIn(Action.LEFT, feasible)
+
+    def test_rollout_policy_redirects_low_battery_agent_to_charger(self):
+        env = WarehouseEnvironment(agent_count=1, battery_capacity=20, move_discharge=1, charge_rate=5, low_battery_threshold=6)
+        env.agent_states[0].position = (2, 4)
+        env.agent_states[0].battery = 6
         policy = BatteryAwareRolloutPolicy(seed=0)
         action = policy.choose_action(env, 0, [(10, 10)])
         self.assertEqual(action, Action.LEFT)

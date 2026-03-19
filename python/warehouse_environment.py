@@ -225,10 +225,14 @@ class WarehouseEnvironment:
         return best
 
     def nearest_charging_station(self, position: Position) -> Position:
+        if position in self.charging_stations:
+            return position
         blocked = self.get_blocked_cells()
         best_station = min(
             self.charging_stations,
-            key=lambda charger: path_length(position, charger, blocked, self.height, self.width) or 10**9,
+            key=lambda charger: path_length(position, charger, blocked, self.height, self.width)
+            if path_length(position, charger, blocked, self.height, self.width) is not None
+            else 10**9,
         )
         return best_station
 
@@ -247,7 +251,9 @@ class WarehouseEnvironment:
             if nearest_charge is None:
                 continue
             post_move_battery = agent.battery - discharge
-            if post_move_battery + self.charge_rate < nearest_charge + self.charge_safety_margin:
+            if self._is_charging_station(nxt):
+                post_move_battery = min(agent.max_battery, post_move_battery + self.charge_rate)
+            if post_move_battery < nearest_charge + self.charge_safety_margin:
                 if not self._is_charging_station(nxt):
                     continue
             feasible.append(int(action))
