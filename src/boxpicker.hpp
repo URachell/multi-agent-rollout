@@ -1,7 +1,7 @@
 #pragma once
-#include "Environment.hpp"
+#include "environment.hpp"
 #include <vector>
-#include "IndexToPair.hpp"
+#include "indextopair.hpp"
 #include <algorithm>
 
 /**

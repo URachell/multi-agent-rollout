@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_set>
-#include "Astar.hpp"
+#include "astar.hpp"
 
 // the top of the priority queue is the greatest element by default,
 // but we want the smallest, so flip the sign

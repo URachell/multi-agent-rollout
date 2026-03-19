@@ -1,6 +1,6 @@
-#include "CostsToControl.hpp"
-#include "BasePolicy.hpp"
-#include "IndexToPair.hpp"
+#include "coststocontrol.hpp"
+#include "basepolicy.hpp"
+#include "indextopair.hpp"
 
 int costsToControl(std::vector<double> &costs, int agentIdx, std::vector<std::pair<int,int>> &targets, Environment &env, char* paths, std::unordered_map<int,int> &posToTargetIdx){
         // Pick the control with the lowest cost
@@ -23,7 +23,7 @@ int costsToControl(std::vector<double> &costs, int agentIdx, std::vector<std::pa
         }
 
         int agentMatrixIndex = env.getMatrixIndex(agentIdx);
-        auto agentPos = indexToPair(agentMatrixIndex, env.getWidth());
+        auto agentPos = indexToPair(agentMatrixIndex, ENV_WIDTH);
 
         std::vector<int> distances;
 

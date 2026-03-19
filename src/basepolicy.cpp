@@ -1,11 +1,11 @@
-#include "BasePolicy.hpp"
-#include "IndexToPair.hpp"
-#include "Astar.hpp"
+#include "basepolicy.hpp"
+#include "indextopair.hpp"
+#include "astar.hpp"
 
 std::vector<int> basePolicy(Environment &env, std::vector<std::pair<int, int>> &targets, int agentIdx, char* paths, std::unordered_map<int,int> &posToTargetIdx){ 
-    int height = env.getHeight();
-    int width = env.getWidth();
-    int* matrix = env.getMatPtr();
+    int height = ENV_HEIGHT;
+    int width = ENV_WIDTH;
+    std::array<int, ENV_CAPACITY>& matrix = env.getMatrixArray();
 
     int startIdx = env.getMatrixIndex(agentIdx);
 

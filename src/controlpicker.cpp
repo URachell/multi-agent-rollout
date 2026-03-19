@@ -1,8 +1,8 @@
-#include "ControlPicker.hpp"
-#include "BasePolicy.hpp"
-#include "UpdateTargets.hpp"
-#include "UpdateBasePolicy.hpp"
-#include "CostsToControl.hpp"
+#include "controlpicker.hpp"
+#include "basepolicy.hpp"
+#include "updatetargets.hpp"
+#include "updatebasepolicy.hpp"
+#include "coststocontrol.hpp"
 #include <iostream>
 
 std::vector<int> controlPicker(Environment &env, std::vector<std::pair<int, int>> targets, std::vector<std::pair<int, int>> dropOffPoints, std::vector<int> &agentOrder, bool freeze, char* paths, std::unordered_map<int, int> &posToTargetIdx){

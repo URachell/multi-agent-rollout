@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdexcept>
-#include "SimulateCoop.hpp"
+#include "simulatecoop.hpp"
 
 /*
 

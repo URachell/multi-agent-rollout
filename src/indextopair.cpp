@@ -1,4 +1,4 @@
-#include "IndexToPair.hpp"
+#include "indextopair.hpp"
 
 std::pair<int, int> indexToPair(int i, const int width){
     int x = (int) floor(i / width);

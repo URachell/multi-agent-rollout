@@ -1,5 +1,5 @@
-#include "UpdateTargets.hpp"
-#include "BoxPicker.hpp"
+#include "updatetargets.hpp"
+#include "boxpicker.hpp"
 
 std::vector<bool> updateTargets(Environment &env, std::vector<std::pair<int, int>> &targets, std::vector<int> &beforeValues, std::vector<std::pair<int, int>> dropOffPoints){
     std::vector<int> afterValues = env.getAgentValues();

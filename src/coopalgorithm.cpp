@@ -1,4 +1,4 @@
-#include "CoopAlgorithm.hpp"
+#include "coopalgorithm.hpp"
 #include <iostream>
 
 Node::Node(int i, int j): i(i), j(j) {}

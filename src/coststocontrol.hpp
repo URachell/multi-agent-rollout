@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "Environment.hpp"
+#include "environment.hpp"
 #include <unordered_map>
 /**
     Calculate the optimal control given a set of costs.
