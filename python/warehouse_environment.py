@@ -68,6 +68,7 @@ class WarehouseEnvironment:
         charging_stations: Sequence[Position] | None = None,
         low_battery_threshold: int = 15,
         charge_safety_margin: int = 3,
+        max_boxes: int | None = None,
     ) -> None:
         self.wall_offset = wall_offset
         self.box_offset = box_offset
@@ -80,6 +81,7 @@ class WarehouseEnvironment:
         self.charge_rate = charge_rate
         self.low_battery_threshold = low_battery_threshold
         self.charge_safety_margin = charge_safety_margin
+        self.max_boxes = max_boxes
 
         self.matrix: List[List[int]] = [
             [Cell.SPACE for _ in range(self.width)] for _ in range(self.height)
@@ -95,6 +97,9 @@ class WarehouseEnvironment:
         self.dropoff_points = self._build_dropoff_points()
         self.charging_stations = set(charging_stations or self._build_default_charging_stations())
 
+        if self.max_boxes is not None and self.max_boxes < len(self.agent_states):
+            raise ValueError("max_boxes must be at least the number of agents.")
+
     def clone(self) -> "WarehouseEnvironment":
         clone_env = WarehouseEnvironment(
             wall_offset=self.wall_offset,
@@ -108,6 +113,7 @@ class WarehouseEnvironment:
             charging_stations=sorted(self.charging_stations),
             low_battery_threshold=self.low_battery_threshold,
             charge_safety_margin=self.charge_safety_margin,
+            max_boxes=self.max_boxes,
         )
         clone_env.height = self.height
         clone_env.width = self.width
@@ -146,8 +152,12 @@ class WarehouseEnvironment:
 
     def _populate_boxes(self) -> None:
         for i in range(6, self.height - 2):
+            if self.max_boxes is not None and self.boxes_left >= self.max_boxes:
+                break
             if (i - 3) % 3 == 0:
                 for j in range(4, self.width - 6):
+                    if self.max_boxes is not None and self.boxes_left >= self.max_boxes:
+                        break
                     if (j - 4) % 8 != 0:
                         pos = (i - 1, j + 1)
                         self.matrix[pos[0]][pos[1]] = int(Cell.BOX)

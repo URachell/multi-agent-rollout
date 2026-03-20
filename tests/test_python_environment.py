@@ -75,6 +75,15 @@ class WarehouseEnvironmentTest(unittest.TestCase):
         action = policy.choose_action(env, 0, [(10, 10)])
         self.assertEqual(action, Action.LEFT)
 
+    def test_environment_can_limit_box_count(self):
+        env = WarehouseEnvironment(agent_count=2, max_boxes=12)
+        self.assertEqual(env.boxes_left, 12)
+        self.assertEqual(len(env.available_boxes), 12)
+
+    def test_rl_wrapper_uses_limited_box_count_by_default(self):
+        rl_env = MultiAgentRolloutEnv(num_agents=2)
+        self.assertEqual(rl_env.env.boxes_left, 12)
+
     def test_rl_wrapper_exposes_battery_observation_action_mask_and_flat_features(self):
         rl_env = MultiAgentRolloutEnv(num_agents=2, battery_capacity=8, move_discharge=2, charge_rate=4)
         observation = rl_env.reset()

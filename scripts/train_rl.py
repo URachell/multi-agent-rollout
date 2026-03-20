@@ -191,6 +191,7 @@ def evaluate_policy(config: argparse.Namespace, action_fn, episodes: int | None 
             idle_discharge=config.idle_discharge,
             charge_rate=config.charge_rate,
             seed=config.seed + episode_idx,
+            max_boxes=config.max_boxes,
         )
         results.append(run_episode(env, action_fn, config.max_steps))
     return aggregate_metrics(results)
@@ -260,6 +261,7 @@ def train_ppo(config: argparse.Namespace, output_dir: Path) -> Path:
         idle_discharge=config.idle_discharge,
         charge_rate=config.charge_rate,
         seed=config.seed,
+        max_boxes=config.max_boxes,
     )
     model = PolicyNetwork(env.observation_dim, env.num_agents, env.action_dim_per_agent, config.hidden_dim)
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
@@ -354,6 +356,7 @@ def train_dqn(config: argparse.Namespace, output_dir: Path) -> Path:
         idle_discharge=config.idle_discharge,
         charge_rate=config.charge_rate,
         seed=config.seed,
+        max_boxes=config.max_boxes,
     )
     joint_action_dim = env.action_dim_per_agent ** env.num_agents
     q_network = QNetwork(env.observation_dim, joint_action_dim, config.hidden_dim)
@@ -437,6 +440,7 @@ def evaluate_saved_policy(config: argparse.Namespace, algo: str, checkpoint_path
         idle_discharge=config.idle_discharge,
         charge_rate=config.charge_rate,
         seed=config.seed,
+        max_boxes=config.max_boxes,
     )
     if algo == "ppo":
         model = load_policy_network(
@@ -500,6 +504,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--move-discharge", type=int, default=1)
     parser.add_argument("--idle-discharge", type=int, default=0)
     parser.add_argument("--charge-rate", type=int, default=5)
+    parser.add_argument("--max-boxes", type=int, default=12)
     parser.add_argument("--learning-rate", type=float, default=3e-4)
     parser.add_argument("--gamma", type=float, default=0.99)
     parser.add_argument("--gae-lambda", type=float, default=0.95)

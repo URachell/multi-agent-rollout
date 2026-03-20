@@ -8,6 +8,7 @@
   "move_discharge": 1,
   "idle_discharge": 0,
   "charge_rate": 5,
+  "max_boxes": 12,
   "learning_rate": 0.0003,
   "gamma": 0.99,
   "epsilon_start": 1.0,

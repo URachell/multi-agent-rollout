@@ -108,6 +108,7 @@ class MultiAgentRolloutEnv:
         idle_discharge: int = 0,
         charge_rate: int = 10,
         seed: int | None = None,
+        max_boxes: int = 12,
     ) -> None:
         self.num_agents = num_agents
         self.seed = seed
@@ -117,6 +118,7 @@ class MultiAgentRolloutEnv:
         self.charge_rate = charge_rate
         self.low_battery_threshold = 15
         self.charge_safety_margin = 3
+        self.max_boxes = max_boxes
         self.policy = BatteryAwareRolloutPolicy(seed=seed)
         self._build_env()
 
@@ -129,6 +131,7 @@ class MultiAgentRolloutEnv:
             charge_rate=self.charge_rate,
             low_battery_threshold=self.low_battery_threshold,
             charge_safety_margin=self.charge_safety_margin,
+            max_boxes=self.max_boxes,
         )
         self.targets = self.env.assign_initial_targets()
 
@@ -192,6 +195,7 @@ def simulate_rollout(
     move_discharge: int = 1,
     idle_discharge: int = 0,
     charge_rate: int = 10,
+    max_boxes: int = 12,
 ) -> List[RolloutTransition]:
     env = MultiAgentRolloutEnv(
         num_agents=num_agents,
@@ -200,6 +204,7 @@ def simulate_rollout(
         idle_discharge=idle_discharge,
         charge_rate=charge_rate,
         seed=seed,
+        max_boxes=max_boxes,
     )
     transitions: List[RolloutTransition] = []
 
